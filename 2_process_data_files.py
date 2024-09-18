@@ -350,7 +350,7 @@ def process_overview_csv(current_csv, file_name):
 
     # month wise product summary list - for each store
 
-    return
+    return current_csv
 
 
 def process_detailed_reviews_csv(current_csv, file_name):
@@ -363,7 +363,7 @@ def process_detailed_reviews_csv(current_csv, file_name):
     return
 
 
-def processe_csv_main(file_name):
+def processe_csv_main(file_name, processed_csv_dataframe=None):
 
     current_csv = read_csv(file_name)
 
@@ -372,7 +372,7 @@ def processe_csv_main(file_name):
         print("overview file")
 
         # process the overview file
-        process_overview_csv(current_csv, file_name)
+        processed_csv_dataframe = process_overview_csv(current_csv, file_name)
         print("overview file skipped - for processing please uncomment")
 
     else:
@@ -382,5 +382,23 @@ def processe_csv_main(file_name):
     return
 
 
-processe_csv_main(file_name_dict["overview"])
+processed_csv_dataframe = [] #overview csv dataframe will be stored
+
+#{"croma":["placeid1","placeid2"],...}
+buisness_name_to_placeid_list_dict ={}
+
+#{"croma":{"placeid1":{"name":"croma","reviews":4.9,..}}}
+overview_data_business_name_placeid_dict={}
+
+#{"croma":{"placeid1":{"name":"croma","reviews":4.9,..,"all_review_stats":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
+#"review_stats_1year":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
+#"bundled_reviews":{1_star:[list all one star reviews for this place id,2_star:[...],...]}
+#}}}
+overview_with_reviews_data_business_name_placeid_dict={}
+
+processe_csv_main(file_name_dict["overview"], processed_csv_dataframe)
+
+
+
+
 processe_csv_main(file_name_dict["reviews"])
