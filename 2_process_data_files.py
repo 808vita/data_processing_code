@@ -381,7 +381,7 @@ def processe_csv_main(file_name):
     return process_detailed_reviews_csv(current_csv, file_name)
 
 
-processed_csv_dataframe = []  # overview csv dataframe will be stored
+processed_overview_csv_dataframe = []  # overview csv dataframe will be stored
 
 # {"croma":["placeid1","placeid2"],...}
 buisness_name_to_placeid_list_dict = {}
@@ -396,33 +396,49 @@ overview_data_business_name_placeid_dict = {}
 overview_with_reviews_data_business_name_placeid_dict = {}
 
 
-def generate_buisness_name_to_placeid_list_dict(processed_csv_dataframe):
+def generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe):
 
     buisness_name_to_placeid_list_dict = {}
+    overview_data_business_name_placeid_dict = {}
 
     company_name_list = ["Croma", "Reliance", "Vivek", "Vasanth"]
 
-    processed_csv_dataframe.query("company in @company_name_list")
+    processed_overview_csv_dataframe.query("company in @company_name_list")
 
     for name in company_name_list:
         temp_list = [name]
-        single_company_selected_dataframe = processed_csv_dataframe.query(
+        single_company_selected_dataframe = processed_overview_csv_dataframe.query(
             "company in @temp_list"
         )
         buisness_name_to_placeid_list_dict[name] = single_company_selected_dataframe[
             "place_id"
         ].to_list()
 
-    return buisness_name_to_placeid_list_dict
+        dict_containing_df_as_records = single_company_selected_dataframe.to_dict(
+            "records"
+        )
+
+        overview_data_business_name_placeid_dict[name] = {}
+
+        for record in dict_containing_df_as_records:
+
+            overview_data_business_name_placeid_dict[name][record["place_id"]] = record
+
+    return buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict
 
 
-processed_csv_dataframe = processe_csv_main(file_name_dict["overview"])
+processed_overview_csv_dataframe = processe_csv_main(file_name_dict["overview"])
 
 
-buisness_name_to_placeid_list_dict = generate_buisness_name_to_placeid_list_dict(
-    processed_csv_dataframe
+buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict = (
+    generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe)
 )
 print(buisness_name_to_placeid_list_dict, "bizz place id dict")
 
+# print(processed_overview_csv_dataframe.to_dict('records'),"to_dict overview csv df")
+
+print(
+    overview_data_business_name_placeid_dict, "overview_data_business_name_placeid_dict"
+)
 
 processe_csv_main(file_name_dict["reviews"])
