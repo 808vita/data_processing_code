@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import re
+import copy
+import json
 
 bundled_data_path = "./bundled_data/"
 print(os.listdir(bundled_data_path))
@@ -360,7 +362,7 @@ def process_detailed_reviews_csv(current_csv, file_name):
 
     print(current_csv.columns)
 
-    return
+    return current_csv
 
 
 def processe_csv_main(file_name):
@@ -433,6 +435,61 @@ def generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe
     return buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict
 
 
+def generate_overview_with_reviews_data_business_name_placeid_dict(
+    processed_reviews_csv_dataframe,
+    buisness_name_to_placeid_list_dict,
+    overview_data_business_name_placeid_dict,
+):
+
+    deep_copy_overview_data_business_name_placeid_dict = copy.deepcopy(
+        overview_data_business_name_placeid_dict
+    )
+    rating_dict = {
+        1: "1_star",
+        2: "2_star",
+        3: "3_star",
+        4: "4_star",
+        5: "5_star",
+    }
+
+    for company_name in buisness_name_to_placeid_list_dict.keys():
+        for place_id in buisness_name_to_placeid_list_dict[company_name]:
+            deep_copy_overview_data_business_name_placeid_dict[company_name][
+                place_id
+            ] = {
+                "bundled_reviews": {
+                    "1_star": [],
+                    "2_star": [],
+                    "3_star": [],
+                    "4_star": [],
+                    "5_star": [],
+                }
+            }
+
+            temp_list = [place_id]
+            single_place_id_reviews_dataframe = processed_reviews_csv_dataframe.query(
+                "place_id in @temp_list"
+            )
+            for rating in rating_dict.keys():
+                rating_temp_list = [rating]
+                single_place_id_single_rating_reviews_dataframe = (
+                    single_place_id_reviews_dataframe.query(
+                        "rating in @rating_temp_list"
+                    )
+                )
+                dict_containing_df_as_records = (
+                    single_place_id_single_rating_reviews_dataframe.to_dict("records")
+                )
+
+                deep_copy_overview_data_business_name_placeid_dict[company_name][
+                    place_id
+                ]["bundled_reviews"][
+                    rating_dict[rating]
+                ] = dict_containing_df_as_records
+
+    return deep_copy_overview_data_business_name_placeid_dict
+
+
 processed_overview_csv_dataframe = processe_csv_main(file_name_dict["overview"])
 
 
@@ -446,4 +503,25 @@ print(
     overview_data_business_name_placeid_dict, "overview_data_business_name_placeid_dict"
 )
 
-processe_csv_main(file_name_dict["reviews"])
+processed_reviews_csv_dataframe = processe_csv_main(file_name_dict["reviews"])
+
+overview_with_reviews_data_business_name_placeid_dict = (
+    generate_overview_with_reviews_data_business_name_placeid_dict(
+        processed_reviews_csv_dataframe,
+        buisness_name_to_placeid_list_dict,
+        overview_data_business_name_placeid_dict,
+    )
+)
+
+# print(overview_with_reviews_data_business_name_placeid_dict)
+print(overview_with_reviews_data_business_name_placeid_dict.keys())
+
+dict_with_names = {
+    "buisness_name_to_placeid_list_dict": buisness_name_to_placeid_list_dict,
+    "overview_data_business_name_placeid_dict": overview_data_business_name_placeid_dict,
+    "overview_with_reviews_data_business_name_placeid_dict": overview_with_reviews_data_business_name_placeid_dict,
+}
+
+for dict_name in dict_with_names.keys():
+    with open(dict_name + ".json", "w") as f:
+        json.dump(dict_with_names[dict_name], f)
