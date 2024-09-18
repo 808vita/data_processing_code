@@ -471,14 +471,22 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                 "place_id in @temp_list"
             )
             for rating in rating_dict.keys():
-                rating_temp_list = [rating]
                 single_place_id_single_rating_reviews_dataframe = (
-                    single_place_id_reviews_dataframe.query(
-                        "rating in @rating_temp_list"
-                    )
+                    single_place_id_reviews_dataframe[
+                        single_place_id_reviews_dataframe["rating"] == rating
+                    ]
                 )
+                drop_columns_list = [
+                    "place_id",
+                    "place_name",
+                    "review_id",
+                    "rating",
+                ]
+
                 dict_containing_df_as_records = (
-                    single_place_id_single_rating_reviews_dataframe.to_dict("records")
+                    single_place_id_single_rating_reviews_dataframe.drop(
+                        drop_columns_list, axis=1
+                    ).to_dict("records")
                 )
 
                 deep_copy_overview_data_business_name_placeid_dict[company_name][
