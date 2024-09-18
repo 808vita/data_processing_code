@@ -454,16 +454,25 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
 
     for company_name in buisness_name_to_placeid_list_dict.keys():
         for place_id in buisness_name_to_placeid_list_dict[company_name]:
-            deep_copy_overview_data_business_name_placeid_dict[company_name][
-                place_id
+
+            deep_copy_overview_data_business_name_placeid_dict[company_name][place_id][
+                "reviews_stats"
             ] = {
-                "bundled_reviews": {
-                    "1_star": [],
-                    "2_star": [],
-                    "3_star": [],
-                    "4_star": [],
-                    "5_star": [],
-                }
+                "1_star": 0,
+                "2_star": 0,
+                "3_star": 0,
+                "4_star": 0,
+                "5_star": 0,
+            }
+
+            deep_copy_overview_data_business_name_placeid_dict[company_name][place_id][
+                "bundled_reviews"
+            ] = {
+                "1_star": [],
+                "2_star": [],
+                "3_star": [],
+                "4_star": [],
+                "5_star": [],
             }
 
             temp_list = [place_id]
@@ -494,6 +503,12 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                 ]["bundled_reviews"][
                     rating_dict[rating]
                 ] = dict_containing_df_as_records
+
+                deep_copy_overview_data_business_name_placeid_dict[company_name][
+                    place_id
+                ]["reviews_stats"][rating_dict[rating]] = len(
+                    dict_containing_df_as_records
+                )
 
     return deep_copy_overview_data_business_name_placeid_dict
 
