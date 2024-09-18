@@ -443,7 +443,6 @@ buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict = (
 )
 print(buisness_name_to_placeid_list_dict, "bizz place id dict")
 
-# print(processed_overview_csv_dataframe.to_dict('records'),"to_dict overview csv df")
 
 print(
     overview_data_business_name_placeid_dict, "overview_data_business_name_placeid_dict"
