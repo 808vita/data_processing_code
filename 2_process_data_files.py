@@ -411,8 +411,6 @@ def generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe
 
     company_name_list = ["Croma", "Reliance", "Vivek", "Vasanth"]
 
-    processed_overview_csv_dataframe.query("company in @company_name_list")
-
     for name in company_name_list:
         temp_list = [name]
         single_company_selected_dataframe = processed_overview_csv_dataframe.query(
