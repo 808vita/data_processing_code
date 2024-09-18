@@ -363,42 +363,66 @@ def process_detailed_reviews_csv(current_csv, file_name):
     return
 
 
-def processe_csv_main(file_name, processed_csv_dataframe=None):
+def processe_csv_main(file_name):
 
     current_csv = read_csv(file_name)
 
     if file_name_dict["overview"] == file_name:
 
         print("overview file")
-
-        # process the overview file
-        processed_csv_dataframe = process_overview_csv(current_csv, file_name)
         print("overview file skipped - for processing please uncomment")
+        # process the overview file
+        return process_overview_csv(current_csv, file_name)
 
     else:
-        process_detailed_reviews_csv(current_csv, file_name)
+
         print("detailed else statement")
 
-    return
+    return process_detailed_reviews_csv(current_csv, file_name)
 
 
-processed_csv_dataframe = [] #overview csv dataframe will be stored
+processed_csv_dataframe = []  # overview csv dataframe will be stored
 
-#{"croma":["placeid1","placeid2"],...}
-buisness_name_to_placeid_list_dict ={}
+# {"croma":["placeid1","placeid2"],...}
+buisness_name_to_placeid_list_dict = {}
 
-#{"croma":{"placeid1":{"name":"croma","reviews":4.9,..}}}
-overview_data_business_name_placeid_dict={}
+# {"croma":{"placeid1":{"name":"croma","reviews":4.9,..}}}
+overview_data_business_name_placeid_dict = {}
 
-#{"croma":{"placeid1":{"name":"croma","reviews":4.9,..,"all_review_stats":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
-#"review_stats_1year":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
-#"bundled_reviews":{1_star:[list all one star reviews for this place id,2_star:[...],...]}
-#}}}
-overview_with_reviews_data_business_name_placeid_dict={}
-
-processe_csv_main(file_name_dict["overview"], processed_csv_dataframe)
+# {"croma":{"placeid1":{"name":"croma","reviews":4.9,..,"all_review_stats":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
+# "review_stats_1year":{1_star:123,2_star:123,3_star:123,4_star:123,5_star:123},
+# "bundled_reviews":{1_star:[list all one star reviews for this place id,2_star:[...],...]}
+# }}}
+overview_with_reviews_data_business_name_placeid_dict = {}
 
 
+def generate_buisness_name_to_placeid_list_dict(processed_csv_dataframe):
+
+    buisness_name_to_placeid_list_dict = {}
+
+    company_name_list = ["Croma", "Reliance", "Vivek", "Vasanth"]
+
+    processed_csv_dataframe.query("company in @company_name_list")
+
+    for name in company_name_list:
+        temp_list = [name]
+        single_company_selected_dataframe = processed_csv_dataframe.query(
+            "company in @temp_list"
+        )
+        buisness_name_to_placeid_list_dict[name] = single_company_selected_dataframe[
+            "place_id"
+        ].to_list()
+
+    return buisness_name_to_placeid_list_dict
+
+
+processed_csv_dataframe = processe_csv_main(file_name_dict["overview"])
+
+
+buisness_name_to_placeid_list_dict = generate_buisness_name_to_placeid_list_dict(
+    processed_csv_dataframe
+)
+print(buisness_name_to_placeid_list_dict, "bizz place id dict")
 
 
 processe_csv_main(file_name_dict["reviews"])
