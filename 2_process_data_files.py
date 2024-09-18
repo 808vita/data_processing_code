@@ -397,6 +397,14 @@ overview_with_reviews_data_business_name_placeid_dict = {}
 
 
 def generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe):
+    """generate dictionaries in the requried format
+
+    Args:
+        processed_overview_csv_dataframe (dataframe): processed_overview_csv_dataframe
+
+    Returns:
+        buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict: dictionaries
+    """
 
     buisness_name_to_placeid_list_dict = {}
     overview_data_business_name_placeid_dict = {}
