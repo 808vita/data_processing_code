@@ -510,6 +510,14 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                     dict_containing_df_as_records
                 )
 
+            overview_data_business_name_placeid_dict[company_name][place_id][
+                "reviews_stats"
+            ] = deep_copy_overview_data_business_name_placeid_dict[company_name][
+                place_id
+            ][
+                "reviews_stats"
+            ]
+
     return deep_copy_overview_data_business_name_placeid_dict
 
 
