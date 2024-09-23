@@ -568,7 +568,8 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
 
                 year_filtered_single_place_id_reviews_dataframe = (
                     generate_year_filtered_single_place_id_reviews_dataframe(
-                        single_place_id_single_rating_reviews_dataframe, True
+                        single_place_id_single_rating_reviews_dataframe,
+                        include_sep_2023=True,
                     )
                 )
 
@@ -587,6 +588,16 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
             ][
                 "reviews_stats"
             ]
+            year_filtered_single_place_id_reviews_dataframe = (
+                generate_year_filtered_single_place_id_reviews_dataframe(
+                    single_place_id_single_rating_reviews_dataframe,
+                    include_sep_2023=False,
+                )
+            )
+
+            deep_copy_overview_data_business_name_placeid_dict[company_name][place_id][
+                "month_split_reviews"
+            ] = year_filtered_single_place_id_reviews_dataframe.groupby("review_month")["review_text"].apply(list).to_dict()
 
     return deep_copy_overview_data_business_name_placeid_dict
 
