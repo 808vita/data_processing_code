@@ -293,6 +293,16 @@ def add_company_names(current_csv):
     return current_csv
 
 
+def convert_dates_add_columns(current_csv):
+
+    current_csv["review_year"] = pd.DatetimeIndex(current_csv["published_at_date"]).year
+    current_csv["review_month"] = pd.DatetimeIndex(
+        current_csv["published_at_date"]
+    ).strftime("%b")
+
+    return current_csv
+
+
 def process_overview_csv(current_csv, file_name):
 
     # drop unused columns
@@ -361,6 +371,14 @@ def process_detailed_reviews_csv(current_csv, file_name):
     current_csv = reviews_drop_columns(current_csv)
 
     print(current_csv.columns)
+
+    current_csv = convert_dates_add_columns(current_csv)
+
+    print(current_csv.columns)
+    print(current_csv["review_month"][0])
+    print(current_csv["review_year"][0])
+
+    # os._exit(0)
 
     return current_csv
 
