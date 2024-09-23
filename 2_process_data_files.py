@@ -299,6 +299,9 @@ def convert_dates_add_columns(current_csv):
     current_csv["review_month"] = pd.DatetimeIndex(
         current_csv["published_at_date"]
     ).strftime("%b")
+    current_csv["review_month_year"] = pd.DatetimeIndex(
+        current_csv["published_at_date"]
+    ).strftime("%b-%Y")
 
     return current_csv
 
@@ -377,8 +380,9 @@ def process_detailed_reviews_csv(current_csv, file_name):
     print(current_csv.columns)
     print(current_csv["review_month"][0])
     print(current_csv["review_year"][0])
+    print(current_csv["review_month_year"][0])
 
-    # os._exit(0)
+    # os._exit(0)s
 
     return current_csv
 
@@ -508,6 +512,8 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                     "place_name",
                     "review_id",
                     "rating",
+                    "published_at",
+                    "published_at_date",
                 ]
 
                 dict_containing_df_as_records = (
@@ -518,15 +524,37 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
 
                 deep_copy_overview_data_business_name_placeid_dict[company_name][
                     place_id
-                ]["bundled_reviews"][
-                    rating_dict[rating]
-                ] = dict_containing_df_as_records
-
-                deep_copy_overview_data_business_name_placeid_dict[company_name][
-                    place_id
                 ]["reviews_stats"][rating_dict[rating]] = len(
                     dict_containing_df_as_records
                 )
+
+                cleaned_single_place_id_single_rating_reviews_dataframe = (
+                    single_place_id_single_rating_reviews_dataframe.drop(
+                        drop_columns_list, axis=1
+                    )
+                )
+                cleaned_single_place_id_single_rating_reviews_dataframe.dropna(
+                    subset=["review_text"], inplace=True
+                )
+
+                years = [2023, 2024]
+                year_filtered_single_place_id_reviews_dataframe = (
+                    cleaned_single_place_id_single_rating_reviews_dataframe.query(
+                        "review_year in @years"
+                    )
+                )
+                year_month = ["Sep-2023"]
+                year_filtered_single_place_id_reviews_dataframe = (
+                    year_filtered_single_place_id_reviews_dataframe.query(
+                        "review_month_year not in @year_month"
+                    )
+                )
+
+                deep_copy_overview_data_business_name_placeid_dict[company_name][
+                    place_id
+                ]["bundled_reviews"][
+                    rating_dict[rating]
+                ] = year_filtered_single_place_id_reviews_dataframe["review_text"].to_list()
 
             overview_data_business_name_placeid_dict[company_name][place_id][
                 "reviews_stats"
