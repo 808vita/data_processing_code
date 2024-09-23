@@ -457,6 +457,44 @@ def generate_buisness_name_to_placeid_list_dict(processed_overview_csv_dataframe
     return buisness_name_to_placeid_list_dict, overview_data_business_name_placeid_dict
 
 
+def generate_year_filtered_single_place_id_reviews_dataframe(
+    single_place_id_single_rating_reviews_dataframe,
+    include_sep_2023=False,
+):
+    drop_columns_list = [
+        "place_id",
+        "place_name",
+        "review_id",
+        "rating",
+        "published_at",
+        "published_at_date",
+    ]
+    cleaned_single_place_id_single_rating_reviews_dataframe = (
+        single_place_id_single_rating_reviews_dataframe.drop(drop_columns_list, axis=1)
+    )
+    cleaned_single_place_id_single_rating_reviews_dataframe.dropna(
+        subset=["review_text"], inplace=True
+    )
+
+    years = [2023, 2024]
+    year_filtered_single_place_id_reviews_dataframe = (
+        cleaned_single_place_id_single_rating_reviews_dataframe.query(
+            "review_year in @years"
+        )
+    )
+
+    if not include_sep_2023:
+
+        year_month = ["Sep-2023"]
+        year_filtered_single_place_id_reviews_dataframe = (
+            year_filtered_single_place_id_reviews_dataframe.query(
+                "review_month_year not in @year_month"
+            )
+        )
+
+    return year_filtered_single_place_id_reviews_dataframe
+
+
 def generate_overview_with_reviews_data_business_name_placeid_dict(
     processed_reviews_csv_dataframe,
     buisness_name_to_placeid_list_dict,
@@ -528,25 +566,9 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                     dict_containing_df_as_records
                 )
 
-                cleaned_single_place_id_single_rating_reviews_dataframe = (
-                    single_place_id_single_rating_reviews_dataframe.drop(
-                        drop_columns_list, axis=1
-                    )
-                )
-                cleaned_single_place_id_single_rating_reviews_dataframe.dropna(
-                    subset=["review_text"], inplace=True
-                )
-
-                years = [2023, 2024]
                 year_filtered_single_place_id_reviews_dataframe = (
-                    cleaned_single_place_id_single_rating_reviews_dataframe.query(
-                        "review_year in @years"
-                    )
-                )
-                year_month = ["Sep-2023"]
-                year_filtered_single_place_id_reviews_dataframe = (
-                    year_filtered_single_place_id_reviews_dataframe.query(
-                        "review_month_year not in @year_month"
+                    generate_year_filtered_single_place_id_reviews_dataframe(
+                        single_place_id_single_rating_reviews_dataframe, True
                     )
                 )
 
@@ -554,7 +576,9 @@ def generate_overview_with_reviews_data_business_name_placeid_dict(
                     place_id
                 ]["bundled_reviews"][
                     rating_dict[rating]
-                ] = year_filtered_single_place_id_reviews_dataframe["review_text"].to_list()
+                ] = year_filtered_single_place_id_reviews_dataframe[
+                    "review_text"
+                ].to_list()
 
             overview_data_business_name_placeid_dict[company_name][place_id][
                 "reviews_stats"
