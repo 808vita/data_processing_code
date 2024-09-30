@@ -1,7 +1,5 @@
 venv
-bundled_data
+
 ignore these raw files
 processed_data
-raw_scraped_data
-*.json
-*.csv
+
